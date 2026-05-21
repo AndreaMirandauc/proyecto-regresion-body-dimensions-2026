@@ -1,34 +1,51 @@
+# Proyecto EYP2307 - Body Dimensions
 
-# Proyecto de Análisis de Regresión 2026
+Este repositorio contiene el avance del proyecto aplicado de Análisis de Regresión usando el conjunto de datos `Body Dimensions` de OpenIntro.
 
-## Tema
+## Pregunta inicial
 
-Proyecto aplicado de regresión lineal múltiple usando el conjunto de datos Body Dimensions.
-
-## Pregunta de investigación
-
-¿Cómo se relacionan distintas medidas corporales con el peso de una persona adulta?
+¿Qué medidas corporales permiten explicar y predecir razonablemente el peso de una persona adulta mediante un modelo de regresión lineal múltiple?
 
 ## Datos
 
-Se usa la base `bdims.csv`, distribuida por OpenIntro.  
-La unidad de observación es una persona adulta.  
-La variable respuesta principal será `wgt`, peso corporal.
+- Fuente: OpenIntro, conjunto `bdims`.
+- URL oficial del CSV: https://www.openintro.org/data/csv/bdims.csv
+- Unidad de observación: persona adulta físicamente activa.
+- Respuesta principal: `wgt`, peso en kilogramos.
+- Predictores candidatos: `hgt`, `age`, `sex`, diámetros corporales y perímetros corporales.
 
-## Estructura del repositorio
+## Estructura sugerida
 
-- `data/`: contiene la base de datos.
-- `R/`: contiene los scripts de limpieza, análisis exploratorio, modelos y diagnósticos.
-- `informe/`: contiene el avance, informe final y archivos fuente.
-- `output/`: contiene figuras y tablas generadas por el código.
+```text
+.
+├── README.md
+├── avance_body_dimensions.tex
+├── avance_body_dimensions.R
+├── data/
+│   └── README.md
+├── figures/
+│   └── .gitkeep
+└── output/
+    └── .gitkeep
+```
 
-## Cómo reproducir el análisis
+## Cómo reproducir el avance
 
-1. Abrir el proyecto en RStudio.
-2. Ejecutar los scripts en este orden:
+1. Abrir RStudio.
+2. Abrir el archivo `avance_body_dimensions.R`.
+3. Ejecutar el script completo.
+4. Revisar que se creen las figuras en la carpeta `figures/` y las salidas en `output/`.
+5. Compilar `avance_body_dimensions.tex` con XeLaTeX o subirlo a Overleaf.
+
+## Paquetes necesarios
+
+El script usa principalmente funciones base de R. El paquete `car` se usa de forma opcional para calcular VIF.
 
 ```r
-source("R/01_limpieza.R")
-source("R/02_edad.R")
-source("R/03_modelos.R")
-source("R/04_diagnosticos.R")
+install.packages("car")
+```
+
+## Nota ética
+
+Los datos no identifican directamente a personas. Las conclusiones deben presentarse como asociaciones/predicciones, no como causalidad.
+
