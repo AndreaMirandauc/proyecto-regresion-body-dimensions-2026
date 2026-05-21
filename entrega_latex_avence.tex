@@ -1,0 +1,202 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\geometry{margin=1.9cm}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black,
+    citecolor=blue!60!black
+}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist[itemize]{topsep=2pt,itemsep=1pt,parsep=0pt,leftmargin=14pt}
+\setlist[enumerate]{topsep=2pt,itemsep=1pt,parsep=0pt,leftmargin=16pt}
+\captionsetup{font=small,labelfont=bf}
+
+\definecolor{azuluc}{HTML}{0B3D91}
+\definecolor{grisclaro}{HTML}{F3F6FA}
+\definecolor{verde}{HTML}{0B6B4A}
+
+\newcommand{\resumenbox}[1]{%
+\vspace{2mm}
+\noindent\fcolorbox{azuluc}{grisclaro}{\parbox{0.96\linewidth}{#1}}
+\vspace{1mm}
+}
+
+\begin{document}
+
+\begin{center}
+
+    {\large Análisis de Regresión - EYP2307}\\[1mm]
+    \textbf{Proyecto: Body Dimensions }\\[1mm]
+    Pontificia Universidad Católica de Chile\\
+    Primer semestre 2026
+\end{center}
+
+\vspace{1mm}
+\textbf{Integrantes:} completar.\hfill
+\textbf{Repositorio:} \href{https://github.com/AndreaMirandauc/proyecto-regresion-dimensiones-corporales-2026}{GitHub del proyecto}
+
+\resumenbox{%
+\textbf{Pregunta de investigación.} ¿Qué características antropométricas se asocian con el peso corporal de personas adultas y qué tan bien puede explicarse el peso mediante un modelo de regresión lineal múltiple? El objetivo principal del avance es \textbf{descriptivo}, con una lectura predictiva secundaria: interpretar asociaciones, revisar incertidumbre y preparar modelos candidatos reproducibles.
+}
+
+\section*{1. Contexto y datos}
+
+El conjunto de datos \texttt{bdims.csv} contiene mediciones antropométricas de personas adultas. La unidad de observación es una persona. Para este avance se define como variable respuesta el peso corporal, \texttt{wgt}, medido en kilogramos. Como predictores candidatos se consideran estatura, edad, sexo, diámetros corporales y perímetros corporales.
+
+\begin{table}[H]
+\centering
+\caption{Ficha inicial del conjunto de datos.}
+\small
+\begin{tabularx}{\linewidth}{>{\bfseries}p{3.1cm}X}
+\toprule
+Elemento & Descripción \\
+\midrule
+Fuente & OpenIntro, base \texttt{bdims.csv}. \\
+Unidad & Persona adulta medida en variables corporales. \\
+Tamaño muestral & $n=507$ observaciones. \\
+Variable respuesta & \texttt{wgt}: peso corporal en kilogramos. \\
+Predictores iniciales & \texttt{hgt}, \texttt{age}, \texttt{sex}, perímetros como \texttt{wai\_gi}, \texttt{hip\_gi}, \texttt{che\_gi}, \texttt{sho\_gi}, \texttt{bic\_gi}, y diámetros corporales. \\
+Datos faltantes & No se detectan datos faltantes en la base usada para este avance. \\
+Dificultades previstas & Posible colinealidad entre medidas corporales, heterocedasticidad, observaciones influyentes y diferencias por sexo. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{2. Preparación inicial}
+
+Se leyó la base \texttt{bdims.csv}, se revisaron dimensiones y valores faltantes, y se recodificó \texttt{sex} sólo para facilitar lectura: $0=$ femenino y $1=$ masculino. En esta etapa no se eliminaron observaciones, porque no se encontró evidencia suficiente para justificar filtros antes del diagnóstico.
+
+\begin{table}[H]
+\centering
+\caption{Resumen descriptivo de variables principales.}
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+Variable & Media & DE & Mín. & Q1 & Mediana & Q3 & Máx. \\
+\midrule
+\texttt{wgt} & 69.15 & 13.35 & 42.00 & 58.40 & 68.20 & 78.85 & 116.40 \\
+\texttt{hgt} & 171.14 & 9.41 & 147.20 & 163.80 & 170.30 & 177.80 & 198.10 \\
+\texttt{age} & 30.18 & 9.61 & 18.00 & 23.00 & 27.00 & 36.00 & 67.00 \\
+\texttt{wai\_gi} & 76.98 & 11.01 & 57.90 & 68.00 & 75.80 & 84.50 & 113.20 \\
+\texttt{hip\_gi} & 96.68 & 6.68 & 78.80 & 92.00 & 96.00 & 101.00 & 128.30 \\
+\texttt{che\_gi} & 93.33 & 10.03 & 72.60 & 85.30 & 91.60 & 101.15 & 118.70 \\
+\texttt{sho\_gi} & 108.20 & 10.37 & 85.90 & 99.45 & 108.20 & 116.55 & 134.80 \\
+\texttt{bic\_gi} & 31.17 & 4.25 & 22.40 & 27.60 & 31.00 & 34.45 & 42.40 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La muestra contiene 260 registros codificados como femenino y 247 como masculino. Como se trata de datos observacionales, el análisis se interpretará como asociación estadística y no como evidencia causal.
+
+\section*{3. Análisis exploratorio preliminar}
+
+La Figura \ref{fig:hgt_wgt} muestra una asociación positiva entre estatura y peso. También se observa que el sexo puede actuar como variable de control, porque las nubes de puntos no se distribuyen exactamente igual entre grupos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.68\linewidth]{figuras/figura_peso_estatura.png}
+\caption{Relación preliminar entre peso y estatura.}
+\label{fig:hgt_wgt}
+\end{figure}
+
+La Figura \ref{fig:peso_sexo} resume diferencias descriptivas de peso por sexo. Esta diferencia no debe interpretarse aisladamente, pues puede estar mezclada con estatura y otras medidas corporales.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.60\linewidth]{figuras/figura_peso_sexo.png}
+\caption{Distribución del peso según sexo.}
+\label{fig:peso_sexo}
+\end{figure}
+
+En las correlaciones preliminares con \texttt{wgt}, las asociaciones más altas aparecen con perímetro de cintura, pecho, hombros y bíceps. Esto sugiere que un modelo sólo con estatura sería insuficiente para describir el peso.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.68\linewidth]{figuras/figura_correlaciones.png}
+\caption{Correlaciones lineales entre peso y predictores seleccionados.}
+\label{fig:corr}
+\end{figure}
+
+\section*{4. Modelos candidatos}
+
+Se propone trabajar con modelos anidados para que las comparaciones tengan interpretación clara. La idea no es ajustar variables por catálogo, sino agregar bloques de predictores que respondan a preguntas estadísticas concretas.
+
+\begin{table}[H]
+\centering
+\caption{Modelos candidatos para el informe final.}
+\small
+\begin{tabularx}{\linewidth}{>{\bfseries}p{1.1cm}X>{\centering\arraybackslash}p{1.4cm}>{\centering\arraybackslash}p{1.4cm}>{\centering\arraybackslash}p{1.3cm}}
+\toprule
+Modelo & Fórmula & $R^2_a$ & AIC & Sigma \\
+\midrule
+M1 & \texttt{wgt $\sim$ hgt + sex} & 0.565 & 3647.2 & 8.80 \\
+M2 & \texttt{wgt $\sim$ hgt + age + sex} & 0.581 & 3629.8 & 8.64 \\
+M3 & \texttt{wgt $\sim$ hgt + age + sex + wai\_gi + hip\_gi + che\_gi} & 0.955 & 2505.4 & 2.84 \\
+M4 & \texttt{wgt $\sim$ hgt + age + sex + wai\_gi + hip\_gi + che\_gi + sho\_gi + bic\_gi} & 0.961 & 2428.1 & 2.63 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Como lectura inicial, el salto entre M2 y M3 es grande: al incorporar medidas de perímetro, el ajuste mejora de forma importante. Esto es coherente con el contexto, porque el peso corporal no depende sólo de estatura, sino también de volumen o composición corporal aproximada por perímetros. Sin embargo, la mejora del ajuste debe revisarse junto con colinealidad y diagnóstico de residuos.
+
+\section*{5. Diagnóstico previsto y decisiones para el informe final}
+
+Para el informe final se revisarán los siguientes puntos:
+
+\begin{itemize}
+    \item \textbf{Linealidad:} gráficos de residuos versus ajustados y residuos versus predictores principales.
+    \item \textbf{Heterocedasticidad:} inspección visual y prueba de Breusch--Pagan. En el avance, M3 muestra indicios preliminares de varianza no constante, por lo que se evaluarán transformaciones o errores estándar robustos.
+    \item \textbf{Normalidad de residuos:} Q-Q plot y lectura de colas, considerando que con $n=507$ pequeñas desviaciones pueden ser estadísticamente detectables.
+    \item \textbf{Colinealidad:} VIF para medidas corporales. En M3, cintura y pecho presentan VIF moderadamente altos, por lo que se considerará selección de variables o modelos alternativos más parsimoniosos.
+    \item \textbf{Influencia:} distancia de Cook y análisis de sensibilidad. No se eliminarán casos automáticamente; sólo se justificaría un retiro si hay evidencia contextual o error de registro.
+    \item \textbf{Autocorrelación:} no parece central porque la base no tiene estructura temporal, pero se declarará esta limitación formalmente.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.68\linewidth]{figuras/figura_residuos_m3.png}
+\caption{Diagnóstico preliminar de residuos para M3.}
+\label{fig:residuos}
+\end{figure}
+
+\section*{6. Reproducibilidad y repositorio}
+
+Todo el código, datos y archivos del análisis se organizarán en un repositorio público de GitHub:
+
+\begin{center}
+\href{https://github.com/AndreaMirandauc/proyecto-regresion-dimensiones-corporales-2026}{\texttt{https://github.com/AndreaMirandauc/proyecto-regresion-dimensiones-corporales-2026}}
+\end{center}
+
+
+
+\section*{7. Declaración de uso de inteligencia artificial}
+
+Para la elaboración de este avance se utilizó inteligencia artificial como apoyo en la organización inicial del documento.
+\section*{8. Conclusión preliminar}
+
+El avance muestra que el peso corporal presenta asociación clara con estatura y, especialmente, con medidas de perímetro corporal. El modelo preliminar con estatura, edad, sexo, cintura, cadera y pecho alcanza un ajuste alto, pero todavía requiere diagnóstico completo antes de sostener conclusiones finales. En el informe final se privilegiará un modelo interpretable, reproducible y defendible, evitando conclusiones causales no justificadas por el diseño observacional de los datos.
+
+\begin{thebibliography}{9}
+\bibitem{openintro} OpenIntro. \textit{Body Dimensions data set}. Disponible en: \url{https://www.openintro.org/data/csv/bdims.csv}.
+
+\end{thebibliography}
+
+\end{document}
