@@ -184,9 +184,9 @@ knitr::kable(head(tabla_cor, 8))
 | wri_gi     |         0.816 |
 | elb_di     |         0.801 |
 
-## 7. Creación de imagen exploratoria
+## 7. Imagen exploratoria
 
-Este bloque crea la figura `eda_principal.png`, que se puede usar directamente en el informe.
+Creamos la figura `eda_principal.png`, que se puede usar directamente en el informe.
 
 ```r
 png("eda_principal.png", width = 1500, height = 500, res = 130)
