@@ -31,5 +31,5 @@ install.packages("car")
 
 ## Nota ética
 
-Los datos no identifican directamente a personas. Las conclusiones deben presentarse como asociaciones/predicciones, no como causalidad.
+Los datos no identifican directamente a personas. Las conclusiones se presentan como asociaciones/predicciones, no como causalidad.
 
