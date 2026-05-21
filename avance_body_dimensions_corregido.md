@@ -381,13 +381,6 @@ Con este primer avance, mi impresión es que el peso corporal se puede predecir 
 
 Para la elaboración de este avance se utilizó inteligencia artificial como apoyo en la organización inicial del documento.
 
-## 16. Guardar información de sesión
-
-```r
-sink("results/sessionInfo.txt")
-sessionInfo()
-sink()
-```
 
 ## 17. Referencias
 
