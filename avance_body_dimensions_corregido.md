@@ -376,24 +376,6 @@ Para el informe final seguiré estos pasos:
 
 Con este primer avance, mi impresión es que el peso corporal se puede predecir bastante bien con estatura y perímetros corporales. Sin embargo, el modelo final debe elegirse con cuidado, porque muchas medidas del cuerpo están muy correlacionadas. Por eso, en la conclusión final separaré dos ideas: qué tan bien predice el modelo y qué tan confiable es interpretar cada coeficiente por separado.
 
-## 15. Reproducibilidad
-
-Para que esto funcione en GitHub y RStudio, la estructura recomendada es:
-
-```text
-proyecto-regresion-body-dimensions-2026/
-├── README.md
-├── avance_body_dimensions.Rmd
-├── avance_body_dimensions.md
-├── data/
-│   └── bdims.csv
-├── figures/
-│   ├── eda_principal.png
-│   └── diagnosticos_m3.png
-└── results/
-```
-
-Para generar nuevamente las figuras, tablas y resultados, se debe abrir `avance_body_dimensions.Rmd` en RStudio y presionar **Knit**.
 
 ## 16. Declaración de uso de herramientas externas
 
