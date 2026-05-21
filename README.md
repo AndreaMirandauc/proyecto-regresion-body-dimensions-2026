@@ -29,6 +29,6 @@ La variable respuesta principal será `wgt`, peso corporal.
 
 ```r
 source("R/01_limpieza.R")
-source("R/02_eda.R")
+source("R/02_edad.R")
 source("R/03_modelos.R")
 source("R/04_diagnosticos.R")
