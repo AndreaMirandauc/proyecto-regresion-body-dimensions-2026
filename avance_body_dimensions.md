@@ -382,7 +382,7 @@ Con este primer avance, mi impresión es que el peso corporal se puede predecir 
 Para la elaboración de este avance se utilizó inteligencia artificial como apoyo en la organización inicial del documento.
 
 
-## 17. Referencias
+## 16. Referencias
 
 Heinz, G., Peterson, L. J., Johnson, R. W. y Kerk, C. J. (2003). *Exploring relationships in body dimensions*. Journal of Statistics Education, 11(2).
 
