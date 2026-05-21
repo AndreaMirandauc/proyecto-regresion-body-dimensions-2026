@@ -377,11 +377,11 @@ Para el informe final seguiré estos pasos:
 Con este primer avance, mi impresión es que el peso corporal se puede predecir bastante bien con estatura y perímetros corporales. Sin embargo, el modelo final debe elegirse con cuidado, porque muchas medidas del cuerpo están muy correlacionadas. Por eso, en la conclusión final separaré dos ideas: qué tan bien predice el modelo y qué tan confiable es interpretar cada coeficiente por separado.
 
 
-## 16. Declaración de uso de herramientas externas
+## 15. Declaración de uso de herramientas externas
 
-Para la elaboración de este avance se utilizó inteligencia artificial como apoyo en la organización inicial del documento, revisión de redacción y estructuración del código en R.
+Para la elaboración de este avance se utilizó inteligencia artificial como apoyo en la organización inicial del documento.
 
-## 17. Guardar información de sesión
+## 16. Guardar información de sesión
 
 ```r
 sink("results/sessionInfo.txt")
@@ -389,7 +389,7 @@ sessionInfo()
 sink()
 ```
 
-## 18. Referencias
+## 17. Referencias
 
 Heinz, G., Peterson, L. J., Johnson, R. W. y Kerk, C. J. (2003). *Exploring relationships in body dimensions*. Journal of Statistics Education, 11(2).
 
