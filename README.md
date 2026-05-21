@@ -14,28 +14,12 @@ Este repositorio contiene el avance del proyecto aplicado de Análisis de Regres
 - Respuesta principal: `wgt`, peso en kilogramos.
 - Predictores candidatos: `hgt`, `age`, `sex`, diámetros corporales y perímetros corporales.
 
-## Estructura sugerida
+## Estructura
+1. avance_Visualizacion.md : Visualización directa en GitHub del código Rmarkdown
+2. avance_rmarkdown: Código en Rmarkdown del avance
+3. avance_latex.tex : Código para generar el documento del informe , las imagenes que se utilizan están subidas al proyecto
+4. Base de datos: bdims.csv
 
-```text
-.
-├── README.md
-├── avance_body_dimensions.tex
-├── avance_body_dimensions.R
-├── data/
-│   └── README.md
-├── figures/
-│   └── .gitkeep
-└── output/
-    └── .gitkeep
-```
-
-## Cómo reproducir el avance
-
-1. Abrir RStudio.
-2. Abrir el archivo `avance_body_dimensions.R`.
-3. Ejecutar el script completo.
-4. Revisar que se creen las figuras en la carpeta `figures/` y las salidas en `output/`.
-5. Compilar `avance_body_dimensions.tex` con XeLaTeX o subirlo a Overleaf.
 
 ## Paquetes necesarios
 
