@@ -1,6 +1,6 @@
 # Proyecto EYP2307 - Body Dimensions
 
-Este repositorio contiene el avance del proyecto aplicado de Análisis de Regresión usando el conjunto de datos `Body Dimensions` de OpenIntro.
+Este repositorio contiene el avance del proyecto aplicado de Análisis de Regresión usando el conjunto de datos `bdims.csv` de OpenIntro.
 
 ## Pregunta inicial
 
