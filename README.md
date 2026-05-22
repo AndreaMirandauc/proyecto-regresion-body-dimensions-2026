@@ -16,7 +16,7 @@ Este repositorio contiene el avance del proyecto aplicado de Análisis de Regres
 
 ## Estructura
 1. avance_Visualizacion.md : Visualización directa en GitHub del código Rmarkdown
-2. avance_rmarkdown: Código en Rmarkdown del avance
+2. avance_codigormark: Código en Rmarkdown del avance
 3. avance_latex.tex : Código para generar el documento del informe , las imagenes que se utilizan están subidas al proyecto. Las imágenes incluidas dentro de este documento son : figura_correlaciones.png , figura_peso_estatura.png , figura_peso_sexo.png y figura_residuos_m3.png
 5. Base de datos: bdims.csv
 
