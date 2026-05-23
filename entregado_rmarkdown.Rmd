@@ -1,0 +1,505 @@
+---
+title: "Proyecto: Avance"
+subtitle: "Body Dimensions: predicción del peso corporal"
+author: "Andre Melanie Miranda Martinez"
+date: "Primer semestre 2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+  pdf_document:
+    toc: false
+    number_sections: true
+  github_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Resumen del avance
+
+En este avance se trabaja con la base **Body Dimensions**, que contiene mediciones antropométricas de personas adultas. El objetivo es estudiar si el peso corporal puede explicarse o predecirse a partir de variables como estatura, edad, sexo y algunas medidas corporales.
+
+La variable respuesta será:
+
+\[
+Y_i = \texttt{wgt}_i
+\]
+
+donde `wgt` corresponde al peso en kilogramos de la persona \(i\).
+
+El análisis será principalmente predictivo, aunque también se revisarán algunas asociaciones entre las variables. Como los datos son observacionales, las conclusiones no se interpretarán de forma causal.
+
+# Pregunta de investigación
+
+La pregunta principal es:
+
+> ¿Qué tan bien se puede predecir el peso de una persona adulta usando estatura, sexo, edad y medidas corporales como cintura, cadera, pecho, muslo y brazo?
+
+
+```{r cargar-datos}
+datos <- read.csv("bdims.csv")
+
+dim(datos)
+names(datos)
+```
+
+```{r nombres}
+names(datos) <- gsub("\\.", "_", names(datos))
+
+names(datos)
+```
+
+# Preparación inicial
+
+```{r sexo}
+datos$sex_f <- factor(datos$sex,
+                      levels = c(0, 1),
+                      labels = c("Mujer", "Hombre"))
+
+table(datos$sex_f)
+```
+
+```{r revision-general}
+numero_observaciones <- nrow(datos)
+numero_variables <- ncol(datos)
+
+total_faltantes <- sum(is.na(datos))
+
+numero_observaciones
+numero_variables
+colSums(is.na(datos))
+total_faltantes
+```
+
+# Ficha inicial del conjunto de datos
+
+```{r ficha}
+ficha <- data.frame(
+  Elemento = c("Fuente",
+               "Unidad de observación",
+               "Tamaño muestral",
+               "Variable respuesta",
+               "Predictores candidatos",
+               "Datos faltantes",
+               "Dificultades esperadas",
+               "Uso ético"),
+  Descripcion = c("OpenIntro, archivo bdims.csv",
+                  "Persona adulta",
+                  paste("n =", numero_observaciones, "personas"),
+                  "wgt: peso corporal en kilogramos",
+                  "hgt, age, sex y distintas medidas corporales",
+                  paste("Se encontraron", total_faltantes, "datos faltantes en total"),
+                  "Puede haber colinealidad entre medidas corporales y observaciones influyentes",
+                  "El análisis es académico y no corresponde a un diagnóstico médico")
+)
+
+knitr::kable(ficha,
+             caption = "Ficha inicial del conjunto de datos.")
+```
+
+# Resumen descriptivo
+
+```{r resumen-descriptivo}
+media_wgt <- mean(datos$wgt)
+desv_wgt <- sd(datos$wgt)
+min_wgt <- min(datos$wgt)
+max_wgt <- max(datos$wgt)
+
+media_hgt <- mean(datos$hgt)
+desv_hgt <- sd(datos$hgt)
+min_hgt <- min(datos$hgt)
+max_hgt <- max(datos$hgt)
+
+media_age <- mean(datos$age)
+desv_age <- sd(datos$age)
+min_age <- min(datos$age)
+max_age <- max(datos$age)
+
+media_wai <- mean(datos$wai_gi)
+desv_wai <- sd(datos$wai_gi)
+min_wai <- min(datos$wai_gi)
+max_wai <- max(datos$wai_gi)
+
+media_hip <- mean(datos$hip_gi)
+desv_hip <- sd(datos$hip_gi)
+min_hip <- min(datos$hip_gi)
+max_hip <- max(datos$hip_gi)
+
+media_che <- mean(datos$che_gi)
+desv_che <- sd(datos$che_gi)
+min_che <- min(datos$che_gi)
+max_che <- max(datos$che_gi)
+
+tabla_resumen <- data.frame(
+  Variable = c("Peso", "Estatura", "Edad", "Cintura", "Cadera", "Pecho"),
+  Media = round(c(media_wgt, media_hgt, media_age, media_wai, media_hip, media_che), 2),
+  Desviacion = round(c(desv_wgt, desv_hgt, desv_age, desv_wai, desv_hip, desv_che), 2),
+  Minimo = round(c(min_wgt, min_hgt, min_age, min_wai, min_hip, min_che), 2),
+  Maximo = round(c(max_wgt, max_hgt, max_age, max_wai, max_hip, max_che), 2)
+)
+
+tabla_resumen
+
+write.csv(tabla_resumen,
+          "results/tabla_resumen_general.csv",
+          row.names = FALSE)
+
+knitr::kable(tabla_resumen,
+             caption = "Resumen descriptivo de variables principales.")
+```
+
+# Análisis exploratorio
+
+```{r correlaciones}
+cor_hgt <- cor(datos$wgt, datos$hgt)
+cor_age <- cor(datos$wgt, datos$age)
+cor_wai <- cor(datos$wgt, datos$wai_gi)
+cor_hip <- cor(datos$wgt, datos$hip_gi)
+cor_che <- cor(datos$wgt, datos$che_gi)
+cor_thi <- cor(datos$wgt, datos$thi_gi)
+cor_bic <- cor(datos$wgt, datos$bic_gi)
+cor_for <- cor(datos$wgt, datos$for_gi)
+
+tabla_cor <- data.frame(
+  Variable = c("hgt", "age", "wai_gi", "hip_gi", "che_gi", "thi_gi", "bic_gi", "for_gi"),
+  Correlacion_con_peso = round(c(cor_hgt, cor_age, cor_wai, cor_hip,
+                                 cor_che, cor_thi, cor_bic, cor_for), 3)
+)
+
+tabla_cor <- tabla_cor[order(tabla_cor$Correlacion_con_peso, decreasing = TRUE), ]
+
+tabla_cor
+
+write.csv(tabla_cor,
+          "results/correlaciones_peso.csv",
+          row.names = FALSE)
+
+knitr::kable(tabla_cor,
+             caption = "Correlaciones entre el peso y algunas variables candidatas.")
+```
+
+```{r figura-eda}
+png("figures/eda_principal.png",
+    width = 1500,
+    height = 500,
+    res = 130)
+
+par(mfrow = c(1, 3))
+par(mar = c(4.5, 4.5, 3.5, 1))
+
+hist(datos$wgt,
+     main = "Distribución del peso",
+     xlab = "Peso (kg)",
+     ylab = "Frecuencia",
+     col = "lightblue",
+     border = "white")
+
+plot(datos$wai_gi,
+     datos$wgt,
+     main = "Peso vs cintura",
+     xlab = "Cintura (cm)",
+     ylab = "Peso (kg)",
+     pch = 19,
+     cex = 0.7)
+
+recta_cintura <- lm(wgt ~ wai_gi, data = datos)
+abline(recta_cintura,
+       col = "red",
+       lwd = 2)
+
+correlaciones_grafico <- tabla_cor$Correlacion_con_peso
+names(correlaciones_grafico) <- tabla_cor$Variable
+
+barplot(rev(correlaciones_grafico),
+        horiz = TRUE,
+        las = 1,
+        main = "Correlación con peso",
+        xlab = "Correlación muestral",
+        col = "lightgray",
+        xlim = c(0, 1))
+
+dev.off()
+```
+
+```{r mostrar-figura-eda, echo=FALSE, out.width="100%"}
+knitr::include_graphics("figures/eda_principal.png")
+```
+
+La figura muestra que el peso tiene bastante variabilidad. También se observa una relación positiva entre cintura y peso, lo que es esperable porque los perímetros corporales deberían estar relacionados con el peso.
+
+# Modelos candidatos
+
+Se ajustan tres modelos. La idea es partir con un modelo simple y después agregar medidas corporales.
+
+## Modelo 1: modelo básico
+
+\[
+\texttt{wgt}_i = \beta_0 + \beta_1\texttt{hgt}_i + \beta_2\texttt{age}_i + \beta_3\texttt{sex}_i + \varepsilon_i
+\]
+
+```{r modelo1}
+m1 <- lm(wgt ~ hgt + age + sex, data = datos)
+
+summary(m1)
+```
+
+## Modelo 2: modelo con perímetros principales
+
+```{r modelo2}
+m2 <- lm(wgt ~ hgt + age + sex + wai_gi + hip_gi + che_gi,
+         data = datos)
+
+summary(m2)
+```
+
+## Modelo 3: modelo ampliado
+
+```{r modelo3}
+m3 <- lm(wgt ~ hgt + age + sex + wai_gi + hip_gi + che_gi + thi_gi + bic_gi,
+         data = datos)
+
+summary(m3)
+```
+
+# Comparación de modelos
+
+Para comparar los modelos se revisa \(R^2\), \(R^2\) ajustado, RMSE y AIC.
+
+```{r comparacion-modelos}
+rmse_m1 <- sqrt(mean(residuals(m1)^2))
+rmse_m2 <- sqrt(mean(residuals(m2)^2))
+rmse_m3 <- sqrt(mean(residuals(m3)^2))
+
+r2_m1 <- summary(m1)$r.squared
+r2_m2 <- summary(m2)$r.squared
+r2_m3 <- summary(m3)$r.squared
+
+r2aj_m1 <- summary(m1)$adj.r.squared
+r2aj_m2 <- summary(m2)$adj.r.squared
+r2aj_m3 <- summary(m3)$adj.r.squared
+
+aic_m1 <- AIC(m1)
+aic_m2 <- AIC(m2)
+aic_m3 <- AIC(m3)
+
+tabla_modelos <- data.frame(
+  Modelo = c("M1: básico",
+             "M2: con perímetros principales",
+             "M3: ampliado"),
+  R2 = round(c(r2_m1, r2_m2, r2_m3), 3),
+  R2_ajustado = round(c(r2aj_m1, r2aj_m2, r2aj_m3), 3),
+  RMSE = round(c(rmse_m1, rmse_m2, rmse_m3), 2),
+  AIC = round(c(aic_m1, aic_m2, aic_m3), 1)
+)
+
+tabla_modelos
+
+write.csv(tabla_modelos,
+          "results/tabla_modelos_preliminares.csv",
+          row.names = FALSE)
+
+knitr::kable(tabla_modelos,
+             caption = "Comparación preliminar de modelos.")
+```
+
+```{r anova-modelos}
+comparacion_anova <- anova(m1, m2, m3)
+
+comparacion_anova
+
+capture.output(comparacion_anova,
+               file = "results/comparacion_anova_modelos.txt")
+
+knitr::kable(comparacion_anova,
+             caption = "Comparación ANOVA de modelos anidados.")
+```
+
+En esta comparación se busca ver si agregar medidas corporales mejora el ajuste del modelo. No basta con quedarse con el modelo más grande, porque también hay que revisar diagnósticos y posible colinealidad.
+
+# Diagnósticos preliminares
+
+```{r diagnosticos}
+png("figures/diagnosticos_m3.png",
+    width = 1000,
+    height = 800,
+    res = 130)
+
+par(mfrow = c(2, 2))
+plot(m3)
+
+dev.off()
+```
+
+```{r mostrar-diagnosticos, echo=FALSE, out.width="100%"}
+knitr::include_graphics("figures/diagnosticos_m3.png")
+```
+
+Estos gráficos permiten revisar linealidad, normalidad de residuos, varianza no constante y posibles puntos influyentes.
+
+# Revisión simple de colinealidad
+
+Como varias medidas corporales se parecen entre sí, puede aparecer colinealidad. Para revisarlo se calcula el VIF usando:
+
+\[
+VIF = \frac{1}{1 - R^2}
+\]
+
+```{r vif-manual}
+X_m3 <- model.matrix(m3)
+X_m3 <- X_m3[, colnames(X_m3) != "(Intercept)"]
+
+aux_hgt <- lm(X_m3[, "hgt"] ~ X_m3[, "age"] + X_m3[, "sex"] +
+                X_m3[, "wai_gi"] + X_m3[, "hip_gi"] + X_m3[, "che_gi"] +
+                X_m3[, "thi_gi"] + X_m3[, "bic_gi"])
+r2_hgt <- summary(aux_hgt)$r.squared
+vif_hgt <- 1 / (1 - r2_hgt)
+
+aux_age <- lm(X_m3[, "age"] ~ X_m3[, "hgt"] + X_m3[, "sex"] +
+                X_m3[, "wai_gi"] + X_m3[, "hip_gi"] + X_m3[, "che_gi"] +
+                X_m3[, "thi_gi"] + X_m3[, "bic_gi"])
+r2_age <- summary(aux_age)$r.squared
+vif_age <- 1 / (1 - r2_age)
+
+aux_sex <- lm(X_m3[, "sex"] ~ X_m3[, "hgt"] + X_m3[, "age"] +
+                X_m3[, "wai_gi"] + X_m3[, "hip_gi"] + X_m3[, "che_gi"] +
+                X_m3[, "thi_gi"] + X_m3[, "bic_gi"])
+r2_sex <- summary(aux_sex)$r.squared
+vif_sex <- 1 / (1 - r2_sex)
+
+aux_wai <- lm(X_m3[, "wai_gi"] ~ X_m3[, "hgt"] + X_m3[, "age"] +
+                X_m3[, "sex"] + X_m3[, "hip_gi"] + X_m3[, "che_gi"] +
+                X_m3[, "thi_gi"] + X_m3[, "bic_gi"])
+r2_wai <- summary(aux_wai)$r.squared
+vif_wai <- 1 / (1 - r2_wai)
+
+aux_hip <- lm(X_m3[, "hip_gi"] ~ X_m3[, "hgt"] + X_m3[, "age"] +
+                X_m3[, "sex"] + X_m3[, "wai_gi"] + X_m3[, "che_gi"] +
+                X_m3[, "thi_gi"] + X_m3[, "bic_gi"])
+r2_hip <- summary(aux_hip)$r.squared
+vif_hip <- 1 / (1 - r2_hip)
+
+aux_che <- lm(X_m3[, "che_gi"] ~ X_m3[, "hgt"] + X_m3[, "age"] +
+                X_m3[, "sex"] + X_m3[, "wai_gi"] + X_m3[, "hip_gi"] +
+                X_m3[, "thi_gi"] + X_m3[, "bic_gi"])
+r2_che <- summary(aux_che)$r.squared
+vif_che <- 1 / (1 - r2_che)
+
+aux_thi <- lm(X_m3[, "thi_gi"] ~ X_m3[, "hgt"] + X_m3[, "age"] +
+                X_m3[, "sex"] + X_m3[, "wai_gi"] + X_m3[, "hip_gi"] +
+                X_m3[, "che_gi"] + X_m3[, "bic_gi"])
+r2_thi <- summary(aux_thi)$r.squared
+vif_thi <- 1 / (1 - r2_thi)
+
+aux_bic <- lm(X_m3[, "bic_gi"] ~ X_m3[, "hgt"] + X_m3[, "age"] +
+                X_m3[, "sex"] + X_m3[, "wai_gi"] + X_m3[, "hip_gi"] +
+                X_m3[, "che_gi"] + X_m3[, "thi_gi"])
+r2_bic <- summary(aux_bic)$r.squared
+vif_bic <- 1 / (1 - r2_bic)
+
+tabla_vif <- data.frame(
+  Variable = c("hgt", "age", "sex", "wai_gi", "hip_gi", "che_gi", "thi_gi", "bic_gi"),
+  VIF = round(c(vif_hgt, vif_age, vif_sex, vif_wai,
+                vif_hip, vif_che, vif_thi, vif_bic), 2)
+)
+
+tabla_vif <- tabla_vif[order(tabla_vif$VIF, decreasing = TRUE), ]
+
+tabla_vif
+
+write.csv(tabla_vif,
+          "results/vif_m3.csv",
+          row.names = FALSE)
+
+knitr::kable(tabla_vif,
+             caption = "VIF calculados para el Modelo 3.")
+```
+
+Si aparecen VIF altos, se debe a que varias medidas corporales están muy relacionadas entre sí. Esto no necesariamente invalida el modelo, pero sí puede hacer menos estable la interpretación individual de algunos coeficientes.
+
+# Observaciones influyentes
+
+```{r cook}
+distancia_cook <- cooks.distance(m3)
+
+corte_cook <- 4 / nrow(datos)
+
+casos_influyentes <- which(distancia_cook > corte_cook)
+
+casos_influyentes
+
+tabla_influyentes <- data.frame(
+  indice = casos_influyentes,
+  distancia_cook = round(distancia_cook[casos_influyentes], 4)
+)
+
+tabla_influyentes
+
+write.csv(tabla_influyentes,
+          "results/casos_influyentes_m3.csv",
+          row.names = FALSE)
+
+knitr::kable(head(tabla_influyentes, 10),
+             caption = "Primeros casos con distancia de Cook mayor que 4/n.")
+```
+
+No se eliminarán observaciones de forma automática. En el informe final se revisará si las conclusiones cambian al analizar los casos más influyentes.
+
+# Conclusión preliminar
+
+En este avance se observa que el peso corporal se relaciona bastante con las medidas corporales, especialmente con los perímetros. Al agregar variables como cintura, cadera y pecho, el ajuste mejora respecto del modelo que usa sólo estatura, edad y sexo.
+
+De todas formas, la interpretación debe hacerse con cuidado, porque muchas medidas corporales están correlacionadas entre sí. Por eso, en el informe final será importante revisar no sólo el ajuste, sino también los diagnósticos del modelo y la estabilidad de las conclusiones.
+
+# Reproducibilidad
+
+El repositorio del proyecto es:
+
+<https://github.com/AndreaMirandauc/proyecto-regresion-body-dimensions-2026>
+
+La estructura esperada del repositorio es:
+
+```text
+proyecto-regresion-body-dimensions-2026/
+  entregado_rmark.Rmd
+  bdims.csv
+  figures/
+    eda_principal.png
+    diagnosticos_m3.png
+  results/
+    tabla_resumen_general.csv
+    correlaciones_peso.csv
+    tabla_modelos_preliminares.csv
+    vif_m3.csv
+    casos_influyentes_m3.csv
+```
+
+# Declaración de uso de herramientas
+
+Para la elaboración de este avance se utilizó inteligencia artificial como apoyo en la organización inicial del documento.
+
+# Referencias
+
+Heinz, G., Peterson, L. J., Johnson, R. W. y Kerk, C. J. (2003). *Exploring relationships in body dimensions*. Journal of Statistics Education, 11(2).
+
+OpenIntro. *Body Dimensions data set*. Archivo `bdims.csv`. <https://www.openintro.org/data/csv/bdims.csv>.
+
+Weisberg, S. (2014). *Applied Linear Regression*. Wiley.
+
+# Información de sesión
+
+```{r session-info}
+sessionInfo()
+
+capture.output(sessionInfo(),
+               file = "results/sessionInfo.txt")
+```
