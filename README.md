@@ -8,7 +8,7 @@ Este repositorio contiene el avance del proyecto aplicado de Análisis de Regres
 
 ## Datos
 
-- Fuente: OpenIntro, conjunto `bdims`.
+- Fuente: OpenIntro, conjunto `bdims.csv`.
 - URL oficial del CSV: https://www.openintro.org/data/csv/bdims.csv
 - Unidad de observación: persona adulta físicamente activa.
 - Respuesta principal: `wgt`, peso en kilogramos.
